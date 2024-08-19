@@ -8,18 +8,20 @@ OBJS = $(SRCS:.asm=.o)
 MAIN_OBJ = $(MAIN:.c=.o)
 %.o : %.c
 	gcc -c $^ -o $@
+PROGRAM = libasm
 
 $(NAME) : $(OBJS) 	
 	ar rc $@ $^
 
 main : $(MAIN_OBJ)
-	gcc -o libasm $(MAIN_OBJ) -L. $(NAME) -z noexecstack
+	gcc -o $(PROGRAM) $(MAIN_OBJ) -L. $(NAME) -z noexecstack
 
 all : $(NAME) main
 
 clean :
 	rm -f $(OBJS)
 	rm -f $(MAIN_OBJ)
+	rm -f $(PROGRAM)
 
 fclean : clean
 	rm -f $(NAME)
