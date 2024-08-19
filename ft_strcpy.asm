@@ -15,4 +15,4 @@ ft_strcpy:
 	done:
 		mov ah, 0
 		mov [rdi], ah
-		ret	
+		ret
