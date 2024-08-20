@@ -3,16 +3,15 @@ section .text
 
 ft_strcpy:
 	xor rax, rax
-	copy:
-		mov al, [rsi]
+	xor rcx, rcx
+	COPY:
+		mov al, [rsi + rcx]
 		cmp al, 0
-		je done
-		mov ah, [rsi]
-		mov [rdi], ah
-		inc rdi
-		inc rsi
-		jmp copy
-	done:
-		mov ah, 0
-		mov [rdi], ah
+		je DONE
+		mov [rdi + rcx], al
+		inc rcx
+		jmp COPY
+	DONE:
+		mov byte [rdi + rcx], 0
+		mov rax, rdi
 		ret
