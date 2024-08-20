@@ -3,21 +3,19 @@ section .text
 
 ft_strcmp:
 	xor rax, rax
+	xor bl, bl
 
 	LOOP:
 		mov al, [rdi]
-		mov ah, [rsi]
-		cmp al, ah
-		jl JUMP_LESS
-		jg JUMP_GREATER
-		cmp al, 0
+		mov bl, [rsi]
+		cmp al, bl
+		jne DONE
+		cmp byte al, 0
 		je DONE
 		inc rdi
 		inc rsi
 		jmp LOOP
-	JUMP_LESS:
-		mov rax, -1
-	JUMP_GREATER:
-		mov rax, 1
 	DONE:
+		sub al, bl
+		movsx rax, al
 		ret
