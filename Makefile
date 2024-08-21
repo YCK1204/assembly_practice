@@ -14,7 +14,7 @@ $(NAME) : $(OBJS)
 	ar rc $@ $^
 
 main : $(MAIN_OBJ)
-	gcc -o $(PROGRAM) $(MAIN_OBJ) -L. $(NAME) -z noexecstack
+	gcc  -o $(PROGRAM) $(MAIN_OBJ) -L. $(NAME) -z noexecstack
 
 all : $(NAME) main
 
