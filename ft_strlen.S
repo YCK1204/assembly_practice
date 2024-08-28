@@ -15,4 +15,3 @@ find_null_byte:
 done:
     mov rax, rcx
     ret
-

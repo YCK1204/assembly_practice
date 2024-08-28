@@ -1,24 +1,29 @@
 extern ft_strlen
-extern ft_pow
 extern find_char
+
+section .data
+	_str dq 0
+	_base dq 0
+	_result dq 0
+	_length dq 0
 
 section .text
         global ft_atoi_base
 
-                                        ; c : rbx
+                                        ; c : rdi
 valid_char:                             ; bool valid_char(char c) {
-        cmp rbx, 9                      ;       if (rbx < 9)
+        cmp rdi, 9                      ;       if (rdi < 9)
         jl not_in_range                 ;               goto not_in_range
-        cmp rbx, 13                     ;       if (rbx > 13)
+        cmp rdi, 13                     ;       if (rdi > 13)
         jg not_in_range                 ;               goto not_in_range
         je valid_char_false             ;               return false;
                                         ;
         not_in_range:                   ; not_in_range:
-                cmp rbx, 32             ;       if (rbx == ' ')
+                cmp rdi, 32             ;       if (rdi == ' ')
                 je valid_char_false     ;               return false;
-                cmp rbx, 43             ;       if (rbx == '+')
+                cmp rdi, 43             ;       if (rdi == '+')
                 je valid_char_false     ;               return false;
-                cmp rbx, 45             ;       if (rbx == '-')
+                cmp rdi, 45             ;       if (rdi == '-')
                 je valid_char_false     ;               return false;
                 jmp valid_char_true     ;       return true;
                                         ; }
@@ -32,8 +37,7 @@ valid_char:                             ; bool valid_char(char c) {
 
                                                 ; base : rsi
 valid_base:                                     ; bool valid_base(char* base) {
-        mov r8, rdi                             ;       r8 = rdi;
-        mov rdi, rsi                            ;       rdi = base;
+        mov rdi, [rel _base]                    ;       rdi = base;
         call ft_strlen                          ;       rax = ft_strlen(rdi);
 
         cmp rax, 1                              ;       if (rax <= 1)
@@ -41,9 +45,13 @@ valid_base:                                     ; bool valid_base(char* base) {
         xor rbx, rbx                            ;       rbx = 0;
         xor rdx, rdx                            ;       rdx = 0;
         valid_base_loop:                        ;       while (true) {
-                movzx rdi, byte [rsi + rbx]     ;               rdi = rsi[rbx];
+		mov rdi, [rel _base]
+		mov rdi, [rdi + rbx]
                 cmp rdi, 0                      ;               if (rdi == '\0')
                 je valid_base_true              ;                       return true;
+		call valid_char			;		rax = valid_char(rdi);
+		cmp rax, 0			;		if (rax == false)
+		je valid_base_false		;			return false;
                 mov rdx, rbx                    ;               rdx = rbx;
                 call find_char                  ;               rax = find_char(rdi, base, rdx);
                 mov rdx, rax                    ;               rdx = rax;
@@ -56,11 +64,9 @@ valid_base:                                     ; bool valid_base(char* base) {
                                                 ; }
 
         valid_base_true:
-                mov rdi, r8
                 mov rax, 1
                 ret
         valid_base_false:
-                mov rdi, r8
                 mov rax, 0
                 ret
 
@@ -68,37 +74,41 @@ valid_base:                                     ; bool valid_base(char* base) {
                                                 ; str : rdi
                                                 ; base : rsi
 ft_atoi_base:                                   ; int ft_atoi_base(char* str, char* base) {
+	mov [rel _str], rdi
+	mov [rel _base], rsi
         call valid_base                         ;       rax = valid_base(base);
         cmp rax, 0                              ;       if (rax == false)
         je atoi_base_done                       ;               return 0;
                                                 ;
                                                 ;       {
-        mov r8, rdi                             ;               r8 = str;
-        mov r14, rsi                            ;               r14 = base;
-        mov rdi, rsi                            ;               str = base;
+        mov rdi, [rel _base]                    ;               str = base;
         call ft_strlen                          ;               rax = ft_strlen(str);
-        mov r15, rax                            ;               base_len = rax;
+	mov [rel _length], qword rax
                                                 ;
         xor rbx, rbx                            ;               rbx = 0;
         xor rdx, rdx                            ;               rdx = 0;
-        xor r9, r9                              ;               r9 = 0;
                                                 ;       }
 
         atoi_base_loop:                         ;       while (true) {
-                movzx rdi, byte [r8 + rbx]      ;               rdi = str[rbx];
+		mov rdi, [rel _str]
+		movzx rdi, byte [rdi + rbx]
                 cmp rdi, 0                      ;               if (rdi == '\0')
                 je atoi_base_done               ;                       break;
-                mov rsi, r14                    ;               rsi = base;
+                mov rsi, [rel _base]            ;               rsi = base;
                 call find_char                  ;               rax = find_char(rdi, rsi, 0);
                 cmp rax, -1                     ;               if (rax == -1)
                 je atoi_base_done               ;                       break;
-                imul r9, r15                    ; 		r9 *= base_len;
-                add r9, rax                     ; 		r9 += rax;
+
+		mov r8, [rel _result]
+		imul r8, [rel _length]		;		rax *= r15;
+		mov [rel _result], r8		;		_result = rax;
+                add [rel _result], rax          ; 		r9 += rax;
+
                 inc rbx                         ;		rbx++;
                 jmp atoi_base_loop              ;       }
 
-        atoi_base_done:                         ;       rax = r9;
-                mov rdi, r8                     ;       str = r8;
-                mov rsi, r14                    ;       base = r14;
-                mov rax, r9			; 	return rax;
+        atoi_base_done:                         ;
+                mov rdi, [rel _str]             ;       str = _str;
+                mov rsi, [rel _base]            ;       base = _base;
+                mov rax, [rel _result]		; 	return _result;
                 ret				; }

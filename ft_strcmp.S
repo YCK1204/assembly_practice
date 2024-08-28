@@ -3,17 +3,17 @@ section .text
 
 ft_strcmp:
 	xor rax, rax
+	xor rcx, rcx
 	xor bl, bl
 
 	LOOP:
-		mov al, [rdi]
-		mov bl, [rsi]
+		mov al, [rdi + rcx]
+		mov bl, [rsi + rcx]
 		cmp al, bl
 		jne DONE
-		cmp byte al, 0
+		cmp al, 0
 		je DONE
-		inc rdi
-		inc rsi
+		inc rcx
 		jmp LOOP
 	DONE:
 		sub al, bl

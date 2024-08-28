@@ -37,4 +37,3 @@ ft_list_sort:					; void ft_list_sort(t_list **begin_list, int (*cmp)()) {
 		mov rdi, r14			;	rsi = cmp
 		mov rsi, r15			; }
 		ret
-
